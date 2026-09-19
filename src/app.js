@@ -4,7 +4,9 @@ import Fastify from 'fastify';
 import { openDatabase } from './storage/db.js';
 import { createReachRepo } from './storage/reaches.js';
 import { createJobRepo } from './storage/jobs.js';
+import { createChainRepo } from './storage/chains.js';
 import { submitJob } from './jobService.js';
+import { submitChain } from './chainService.js';
 import { validateReachPayload } from './validation.js';
 import { seedDemoJob } from './demo.js';
 import { AppError } from './errors.js';
@@ -13,6 +15,7 @@ export function buildApp({ dbPath = ':memory:' } = {}) {
   const db = openDatabase(dbPath);
   const reachRepo = createReachRepo(db);
   const jobRepo = createJobRepo(db);
+  const chainRepo = createChainRepo(db);
   seedDemoJob(jobRepo);
 
   const app = Fastify({ logger: false });
@@ -67,6 +70,22 @@ export function buildApp({ dbPath = ':memory:' } = {}) {
       throw new AppError('NOT_FOUND', `作业 ${req.params.id} 不存在`, 404);
     }
     return job;
+  });
+
+  // —— 河链作业：最上游入流 + 按顺序排好的几段河，一次交进去 ——
+  app.post('/chains', async (req, reply) => {
+    const chain = submitChain(req.body, { reachRepo, chainRepo });
+    return reply.code(201).send(chain);
+  });
+
+  app.get('/chains', async () => ({ chains: chainRepo.list() }));
+
+  app.get('/chains/:id', async (req) => {
+    const chain = chainRepo.getById(req.params.id);
+    if (!chain) {
+      throw new AppError('NOT_FOUND', `河链 ${req.params.id} 不存在`, 404);
+    }
+    return chain;
   });
 
   app.addHook('onClose', async () => {

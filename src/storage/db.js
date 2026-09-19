@@ -40,6 +40,13 @@ export function openDatabase(dbPath) {
       coefficient_sum_tolerance REAL NOT NULL,
       created_at               TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS chains (
+      id             TEXT PRIMARY KEY,
+      status         TEXT NOT NULL,
+      segment_count  INTEGER NOT NULL,
+      record         TEXT NOT NULL,
+      created_at     TEXT NOT NULL
+    );
   `);
   return db;
 }
