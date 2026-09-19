@@ -40,6 +40,24 @@ export function openDatabase(dbPath) {
       coefficient_sum_tolerance REAL NOT NULL,
       created_at               TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS chains (
+      id                 TEXT PRIMARY KEY,
+      status             TEXT NOT NULL,
+      dt                 REAL NOT NULL,
+      inflow             TEXT NOT NULL,
+      initial_outflow    REAL NOT NULL,
+      segments           TEXT NOT NULL,
+      outlet             TEXT NOT NULL,
+      inflow_peak_index  INTEGER NOT NULL,
+      outlet_peak_index  INTEGER NOT NULL,
+      peak_lag_steps     INTEGER NOT NULL,
+      inflow_volume      REAL NOT NULL,
+      lateral_volumes    TEXT NOT NULL,
+      outlet_volume      REAL NOT NULL,
+      volume_difference  REAL NOT NULL,
+      closure_tolerance  REAL NOT NULL,
+      created_at         TEXT NOT NULL
+    );
   `);
   return db;
 }
